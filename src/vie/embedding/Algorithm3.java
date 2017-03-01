@@ -23,18 +23,22 @@ public class Algorithm3 extends NodeMapper{
 	protected void attemptNodeMapping(){
 		List<List<PhysicalNode>> subsets = topology.getSubsets();
 		
-		topology.getNodes().get(virtualRequest.getVirtualNodes().get(0).getMapID()).disable();							// disable physical node mapped to origin 
+		topology.getNodes().get(virtualRequest.getVirtualNodes().get(0).getMapID()).disable();															// disable physical node mapped to origin 
 		topology.getNodes().get(virtualRequest.getVirtualNodes().get(virtualRequest.getVirtualNodes().size() - 1).getMapID()).disable();				// disable physical node mapped to destination
 		
-		
+		List<VirtualNode> virtualNodes = virtualRequest.getVirtualNodes();
 		for(int i = 1; i < virtualRequest.getVirtualNodes().size() - 1;i++){
 			int shortest = Integer.MAX_VALUE;
 			PhysicalNode best = null;
-			VirtualNode vn = virtualRequest.getVirtualNodes().get(i);
-			for(PhysicalNode n: subsets.get(vn.getRequestedFunctionID()-1)){
-				if(virtualRequest.getVirtualNodes().get(i-1).getMapID() == n.getID() || n.isDisabled() || n.getComputationalAvailability() < vn.getComputationalDemand() )continue;
+			
+			VirtualNode currentVN = virtualNodes.get(i);
+			int computationalDemand = currentVN.getComputationalDemand();
+			int requestedFunction = currentVN.getRequestedFunctionID();
+			
+			for(PhysicalNode n: subsets.get(requestedFunction - 1)){
+				if(n.isDisabled() || n.getComputationalAvailability() < computationalDemand )continue;
 
-				int distance =  topology.getPathDictionary().get(virtualRequest.getVirtualNodes().get(i-1).getMapID()).get(n.getID()).getPathDistance();
+				int distance =  topology.getPathDictionary().get(virtualNodes.get(i-1).getMapID()).get(n.getID()).getPathDistance();
 				if(distance < shortest){
 					shortest = distance;
 					best = n;
@@ -42,8 +46,8 @@ public class Algorithm3 extends NodeMapper{
 			}
 			
 			if(best != null){
-				reserveNodeResource(vn.getComputationalDemand(), best);
-				vn.setMap(best.getID());
+				reserveNodeResource(computationalDemand, best);
+				currentVN.setMap(best.getID());
 				best.disable();
 			}
 			else{
@@ -61,6 +65,9 @@ public class Algorithm3 extends NodeMapper{
 	protected void attemptLinkMapping(){
 		for(VirtualLink link : virtualRequest.getVirtualLinks()){
 			List<PhysicalLink> links = new ArrayList<>();
+			
+			int bandwidthDemand = link.getbandwidthDemand(); 
+
 
 			boolean validPath = true;
 			Path path = topology.getPathDictionary()
@@ -78,7 +85,8 @@ public class Algorithm3 extends NodeMapper{
 			
 			while (next.hasNext()){
 				PhysicalLink l = topology.getLink(current.getNodeID(), next.getNodeID());
-				if(l.getbandwidthAvailability() < link.getbandwidthDemand()){
+				
+				if(l.getbandwidthAvailability() < bandwidthDemand){
 					validPath = false;
 					break;
 				}
@@ -90,7 +98,7 @@ public class Algorithm3 extends NodeMapper{
 			
 			if (validPath) {
 				link.setLinkMapping(path);
-				reserveLinkResource(link.getbandwidthDemand(), links);
+				reserveLinkResource(bandwidthDemand, links);
 			}
 			else{
 				releaseLinkResource();
@@ -108,9 +116,12 @@ public class Algorithm3 extends NodeMapper{
 	}
 	
 	private void setDictionary(){
-		if(virtualRequest.getVirtualNodes().size() == 2){
-			Path path = new DijkstraShortestPath(topology, virtualRequest.getVirtualNodes().get(0).getMapID(), virtualRequest.getVirtualNodes().get(1).getMapID()).getShortestPath();
-			topology.getPathDictionary().get(virtualRequest.getVirtualNodes().get(0).getMapID()).put( virtualRequest.getVirtualNodes().get(1).getMapID(), path);
+		
+		List<VirtualNode> virtualNodes = virtualRequest.getVirtualNodes();
+		
+		if(virtualNodes.size() == 2){
+			Path path = new DijkstraShortestPath(topology, virtualNodes.get(0).getMapID(), virtualNodes.get(1).getMapID()).getShortestPath();
+			topology.getPathDictionary().get(virtualNodes.get(0).getMapID()).put( virtualNodes.get(1).getMapID(), path);
 			return;
 		}
 		
@@ -118,8 +129,8 @@ public class Algorithm3 extends NodeMapper{
 		List<List<PhysicalNode>> subsets = topology.getSubsets();
 		
 		List<PhysicalNode> origins = new ArrayList<>();
-		origins.add(topology.getNodes().get(virtualRequest.getVirtualNodes().get(0).getMapID()));
-		int functionOfInterest = virtualRequest.getVirtualNodes().get(1).getRequestedFunctionID();
+		origins.add(topology.getNodes().get(virtualNodes.get(0).getMapID()));
+		int functionOfInterest = virtualNodes.get(1).getRequestedFunctionID();
 		generateList(origins,subsets.get(functionOfInterest-1),1);
 
 	}

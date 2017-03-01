@@ -40,9 +40,9 @@ public class Simulator {
 		int success = 0;
 		int request = 0;
 		for(VirtualRequest vr: requests){
-			Algorithm1 mapper = new Algorithm1(topology, vr);
+			//Algorithm1 mapper = new Algorithm1(topology, vr);
 			//Algorithm2 mapper = new Algorithm2(topology, vr);
-			//Algorithm3 mapper = new Algorithm3(topology, vr);
+			Algorithm3 mapper = new Algorithm3(topology, vr);
 			mapper.attemptRequestMapping();
 
 			if (mapper.attemptRequestMapping()){
