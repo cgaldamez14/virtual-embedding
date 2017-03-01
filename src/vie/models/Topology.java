@@ -10,8 +10,11 @@ import vie.utilities.NetworkTopology;
 
 public class Topology {
 
-	public static final int COMPUTATIONAL_AVAILABILITY = 2000;
-	public static final int BANDWIDTH_AVAILABILITY = 10000;
+	//public static final int COMPUTATIONAL_AVAILABILITY = 2000;
+	//public static final int BANDWIDTH_AVAILABILIT/Y = 10000;
+	
+	public static final int COMPUTATIONAL_AVAILABILITY = 1800;
+	public static final int BANDWIDTH_AVAILABILITY = 7500;
 	
 	private Map<Integer, PhysicalNode> nodes;
 	private List<PhysicalLink> links;
@@ -21,6 +24,7 @@ public class Topology {
 	private Map<Integer,Map<Integer,Path>> pathDictionary;
 
 	private NetworkTopology type;
+	public int requestsMapped = 0;
 	
 	public Topology(NetworkTopology type){
 		this.type = type;

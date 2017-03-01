@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class PhysicalNode {
 
-	private static int nodeCount = 0;
+	public static int nodeCount = 0;
 	
 	private int id;
 	private int computationalAvailability;

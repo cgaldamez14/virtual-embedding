@@ -7,6 +7,7 @@ import java.util.List;
 import vie.embedding.Algorithm1;
 import vie.embedding.Algorithm2;
 import vie.embedding.Algorithm3;
+import vie.embedding.Mapper;
 import vie.models.Link;
 import vie.models.Node;
 import vie.models.Pair;
@@ -21,7 +22,7 @@ import vie.utilities.TopologyUtil;
 @SuppressWarnings("unused")
 public class Simulator {
 
-	private final static int NUMBER_OF_REQUESTS = 100;
+	private int NUMBER_OF_REQUESTS = 100;
 	
 	private List<VirtualRequest> requests;
 	private Topology topology;
@@ -34,29 +35,49 @@ public class Simulator {
 		
 	}
 	
-	public void start(){
+	public Topology getTopology(){
+		return topology;
+	}
+	
+	public void setNumberOfRequest(int numberOfRequests){
+		NUMBER_OF_REQUESTS= numberOfRequests;
+	}
+	
+	public void start(int algorithm){
 		generateRequests();
 		
 		int success = 0;
 		int request = 0;
 		for(VirtualRequest vr: requests){
-			//Algorithm1 mapper = new Algorithm1(topology, vr);
-			//Algorithm2 mapper = new Algorithm2(topology, vr);
-			Algorithm3 mapper = new Algorithm3(topology, vr);
-			mapper.attemptRequestMapping();
+			
+			Mapper mapper = null;
+			switch(algorithm){
+			case 1:
+				mapper = new Algorithm1(topology, vr);
+				break;
+			case 2:
+				mapper = new Algorithm2(topology, vr);
+				break;
+			case 3:
+				mapper = new Algorithm3(topology, vr);
+				break;
+			}
+
 
 			if (mapper.attemptRequestMapping()){
-				System.out.println("\n****************************** REQUEST " + request + " ********************************\n");
-				System.out.println(vr);
-				System.out.println("************************** END OF REQUEST " + request + " *****************************\n");
+				//System.out.println("\n****************************** REQUEST " + request + " ********************************\n");
+				//System.out.println(vr);
+				//System.out.println("************************** END OF REQUEST " + request + " *****************************\n");
 
 				success++;
+				topology.requestsMapped++;
 			}
 			request++;
 		}
 		
-		System.out.println( success + " / " + requests.size() + " were successfully mapped.");
-		System.out.println("TOTAL BANDWIDTH CONSUMPTION: " + topology.getTotalBandwidthConsumption());
+		//System.out.print("\r" + success + " / " + requests.size() + " were successfully mapped.");
+		//System.out.print("TOTAL BANDWIDTH CONSUMPTION: " + topology.getTotalBandwidthConsumption());
+		//System.out.flush();
 	}
 	
 	private void generateRequests(){
@@ -86,12 +107,12 @@ public class Simulator {
 		int speed;
 		
 		// Generate speed for origin virtual node
-		do{
-			speed = Node.generateRandomComputationalSpeed();
-		}while(speed > originMap.getComputationalAvailability());
+		//do{
+		//	speed = Node.generateRandomComputationalSpeed();
+		//}while(speed > originMap.getComputationalAvailability());
 		
-		VirtualNode originVirtualNode = new VirtualNode(0, speed);
-		originMap.setComputationAvailability(originMap.getComputationalAvailability() - speed); // Update computational availability
+		VirtualNode originVirtualNode = new VirtualNode(0, Node.generateRandomComputationalSpeed());
+		//originMap.setComputationAvailability(originMap.getComputationalAvailability() - speed); // Update computational availability
 		originVirtualNode.setMap(originMapID);
 		request.getVirtualNodes().add(originVirtualNode);
 		
@@ -102,12 +123,12 @@ public class Simulator {
 		}
 		
 		// Generate speed for destination virtual node
-		do{
-			speed = Node.generateRandomComputationalSpeed();
-		}while(speed > destinationMap.getComputationalAvailability());
+		//do{
+		//	speed = Node.generateRandomComputationalSpeed();
+		//}while(speed > destinationMap.getComputationalAvailability());
 		
-		VirtualNode destinationVirtualNode = new VirtualNode(numberOfVirtualNodes - 1, speed);
-		destinationMap.setComputationAvailability(destinationMap.getComputationalAvailability() - speed); // Update computational availability
+		VirtualNode destinationVirtualNode = new VirtualNode(numberOfVirtualNodes - 1, Node.generateRandomComputationalSpeed());
+		//destinationMap.setComputationAvailability(destinationMap.getComputationalAvailability() - speed); // Update computational availability
 		destinationVirtualNode.setMap(destinationMapID);
 		request.getVirtualNodes().add(destinationVirtualNode);
 		

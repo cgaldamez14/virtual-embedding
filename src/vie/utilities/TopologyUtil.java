@@ -21,6 +21,7 @@ public class TopologyUtil {
 	public static Topology readAdjacencyMatrix(NetworkTopology type) throws IOException{
 		
 		Topology topology = new Topology(type);
+		//System.out.println(topology);
 		
 		int numberOfNodes = type.getNumberOfPhysicalNodes();
 		
@@ -35,9 +36,10 @@ public class TopologyUtil {
 	private static Map<Integer, PhysicalNode> createPhysicalNodes(int numberOfNodes, int compute){
 		
 		Map<Integer,PhysicalNode> nodes = new HashMap<>();
+		PhysicalNode node = null;
 		
 		for ( int i = 0; i < numberOfNodes; i++){
-			PhysicalNode node = new PhysicalNode(Topology.COMPUTATIONAL_AVAILABILITY);
+			node = new PhysicalNode(Topology.COMPUTATIONAL_AVAILABILITY);
 			int fstNetworkFunction = node.addNetworkFunction(1 + (int)(Math.random() * 3));
 			int sndNetworkFunction;
 			do{
@@ -47,6 +49,9 @@ public class TopologyUtil {
 			nodes.put(node.getID(), node);
 		}
 		
+		node.nodeCount = 0;
+		
+		//System.out.println(nodes);
 		return nodes;
 	}
 	
