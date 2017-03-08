@@ -20,14 +20,18 @@ public class VirtualInfrastructureEmbedding extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Blocking Probability");
-		final NumberAxis xAxis = new NumberAxis(0d, 725d, 50);
+		//final NumberAxis xAxis = new NumberAxis(0d, 725d, 50);
+		final NumberAxis xAxis = new NumberAxis();
+
 		xAxis.setLabel("# of Requests");
 		
-		final NumberAxis yAxis = new NumberAxis(-1d, 22d, 1);
+		//final NumberAxis yAxis = new NumberAxis(-1d, 22d, 1);
+		final NumberAxis yAxis = new NumberAxis();
+
 		yAxis.setLabel("Blocking Probability");
 		
 		final LineChart<Number, Number> lineChart = new LineChart<Number,Number>(xAxis,yAxis);
-/*		lineChart.setTitle("BandwidthConsumption");
+		lineChart.setTitle("BandwidthConsumption");
 		
         XYChart.Series<Number, Number> series1 = new XYChart.Series<Number, Number>();
         series1.setName("Algortihm 1");
@@ -54,37 +58,37 @@ public class VirtualInfrastructureEmbedding extends Application {
         	int consumption = BandwidthConsumption.averageBandwidthConsumption(20, i * 50, 3);
             series3.getData().add(new Data<Number, Number>(i * 50, consumption));
 
-        }*/
-        
-		lineChart.setTitle("Blocking Probability");
-		
-        XYChart.Series<Number, Number> series1 = new XYChart.Series<Number, Number>();
-        series1.setName("Algortihm 1");
-        
-        for(int i = 1; i <= 7;i++){
-        	double blockingProbability = BlockingProbability.averageBlockingProbability(40, i * 100, 1);
-            series1.getData().add(new XYChart.Data<Number, Number>(i * 100, blockingProbability));
-
         }
         
-        
-        XYChart.Series<Number, Number> series2 = new XYChart.Series<Number, Number>();
-        series2.setName("Algortihm 2");
-        
-        for(int i = 1; i <= 7;i++){
-        	double blockingProbability = BlockingProbability.averageBlockingProbability(40, i * 100, 1);
-            series2.getData().add(new XYChart.Data<Number, Number>(i * 100, blockingProbability));
-
-        }
-        
-        XYChart.Series<Number,Number> series3 = new Series<Number, Number>();
-        series3.setName("Algortihm 3");
-        for(int i = 1; i <= 7;i++){
-        	double blockingProbability = BlockingProbability.averageBlockingProbability(40, i * 100, 1);
-            series3.getData().add(new XYChart.Data<Number, Number>(i * 100, blockingProbability));
-
-        }
-        
+        lineChart.setTitle("Blocking Probability");
+//		
+//        XYChart.Series<Number, Number> series1 = new XYChart.Series<Number, Number>();
+//        series1.setName("Algortihm 1");
+//        
+//        for(int i = 1; i <= 7;i++){
+//        	double blockingProbability = BlockingProbability.averageBlockingProbability(40, i * 100, 1);
+//            series1.getData().add(new XYChart.Data<Number, Number>(i * 100, blockingProbability));
+//
+//        }
+//        
+//        
+//        XYChart.Series<Number, Number> series2 = new XYChart.Series<Number, Number>();
+//        series2.setName("Algortihm 2");
+//        
+//        for(int i = 1; i <= 7;i++){
+//        	double blockingProbability = BlockingProbability.averageBlockingProbability(40, i * 100, 1);
+//            series2.getData().add(new XYChart.Data<Number, Number>(i * 100, blockingProbability));
+//
+//        }
+//        
+//        XYChart.Series<Number,Number> series3 = new Series<Number, Number>();
+//        series3.setName("Algortihm 3");
+//        for(int i = 1; i <= 7;i++){
+//        	double blockingProbability = BlockingProbability.averageBlockingProbability(40, i * 100, 1);
+//            series3.getData().add(new XYChart.Data<Number, Number>(i * 100, blockingProbability));
+//
+//        }
+//        
 
         
         Scene scene  = new Scene(lineChart,800,600);       

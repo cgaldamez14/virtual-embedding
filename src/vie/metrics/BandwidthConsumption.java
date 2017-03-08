@@ -12,7 +12,7 @@ public class BandwidthConsumption{
 
 		int sum = 0;
 		for(int i = 0; i < iterations; i++){
-			Simulator simulator = new Simulator(NetworkTopology.NSFNET);
+			Simulator simulator = new Simulator(NetworkTopology.US_MESH);
 			simulator.setNumberOfRequest(numberOfRequests);
 			simulator.start(algorithm);
 			sum += simulator.getTopology().getTotalBandwidthConsumption();

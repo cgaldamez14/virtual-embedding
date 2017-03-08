@@ -10,13 +10,13 @@ import vie.utilities.NetworkTopology;
 
 public class Topology {
 
-	//public static final int COMPUTATIONAL_AVAILABILITY = 2000;
-	//public static final int BANDWIDTH_AVAILABILIT/Y = 10000;
+	public static final int COMPUTATIONAL_AVAILABILITY = 500000;
+	public static final int BANDWIDTH_AVAILABILITY = 1000000;
 	
-	public static final int COMPUTATIONAL_AVAILABILITY = 1800;
-	public static final int BANDWIDTH_AVAILABILITY = 7500;
+	//public static final int COMPUTATIONAL_AVAILABILITY = 1500;
+	//public static final int BANDWIDTH_AVAILABILITY = 7500;
 	
-	private Map<Integer, PhysicalNode> nodes;
+	private Map<Integer, PhysicalNode> nodes;	
 	private List<PhysicalLink> links;
 	
 	private List<List<PhysicalNode>> subsets;
