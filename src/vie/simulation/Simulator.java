@@ -3,6 +3,7 @@ package vie.simulation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import vie.embedding.Algorithm1;
 import vie.embedding.Algorithm2;
@@ -11,6 +12,7 @@ import vie.embedding.Mapper;
 import vie.models.Link;
 import vie.models.Node;
 import vie.models.Pair;
+import vie.models.PhysicalLink;
 import vie.models.PhysicalNode;
 import vie.models.Topology;
 import vie.models.VirtualLink;
@@ -27,12 +29,13 @@ public class Simulator {
 	private List<VirtualRequest> requests;
 	private Topology topology;
 	
+	public static int MAX_NODES = 4;
+	
 	public Simulator(NetworkTopology type) throws IOException{
 		
 		this.requests = new ArrayList<>();
 		this.topology = TopologyUtil.readAdjacencyMatrix(type);
 		topology.setSubsets();
-		
 	}
 	
 	public Topology getTopology(){
@@ -43,9 +46,30 @@ public class Simulator {
 		NUMBER_OF_REQUESTS= numberOfRequests;
 	}
 	
-	public void start(int algorithm){
-		generateRequests();
+	public void resetAllResources(){
+		topology.requestsMapped = 0;
+		for(VirtualRequest vr: requests){
+			if(vr.isBlocked()){
+				vr.unblock();
+			}
+			for(int i = 1; i < vr.getVirtualNodes().size() - 1; i++){
+				vr.getVirtualNodes().get(i).setMap(-1);
+			}
+			for(VirtualLink vl: vr.getVirtualLinks()){
+				vl.setLinkMapping(null);
+			}
+		}
 		
+		for(Map.Entry<Integer, PhysicalNode> entry: topology.getNodes().entrySet()){
+			entry.getValue().setComputationAvailability(Topology.COMPUTATIONAL_AVAILABILITY);
+		}
+		
+		for(PhysicalLink pl: topology.getLinks()){
+			pl.setBandwidthAvailability(Topology.BANDWIDTH_AVAILABILITY);
+		}
+	}
+	
+	public void start(int algorithm){		
 		int success = 0;
 		int request = 0;
 		for(VirtualRequest vr: requests){
@@ -80,14 +104,14 @@ public class Simulator {
 		//System.out.flush();
 	}
 	
-	private void generateRequests(){
+	public void generateRequests(){
 		for (int requestNumber = 0; requestNumber < NUMBER_OF_REQUESTS; requestNumber++)
 			generateRequest(requestNumber);
 	}
 	
 	private void generateRequest(int number){
 		
-		int numberOfVirtualNodes = 2 + (int)(Math.random() * 4);     // Max number of nodes is 6 and minimum is 2
+		int numberOfVirtualNodes = 2 + (int)(Math.random() * MAX_NODES);     // Max number of nodes is 6 and minimum is 2
 		int numberOfVirtualLinks = numberOfVirtualNodes - 1;		 // Linear array topology has 1 less link than the total number of nodes
 		
 		VirtualRequest request = new VirtualRequest(numberOfVirtualNodes, numberOfVirtualLinks);

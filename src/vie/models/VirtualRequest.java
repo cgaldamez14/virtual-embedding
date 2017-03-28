@@ -51,6 +51,10 @@ public class VirtualRequest {
 		blocked = true;
 		
 	}
+	
+	public void unblock(){
+		blocked = false;
+	}
 
 	public boolean isBlocked() {
 		return blocked;
