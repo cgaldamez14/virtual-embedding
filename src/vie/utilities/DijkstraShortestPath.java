@@ -9,7 +9,9 @@ import java.util.Set;
 import vie.models.Pair;
 import vie.models.Path;
 import vie.models.PathNode;
+import vie.models.PhysicalNode;
 import vie.models.Topology;
+import vie.models.VirtualNode;
 
 public class DijkstraShortestPath {
 
@@ -39,6 +41,10 @@ public class DijkstraShortestPath {
 		init();
 		
 		findShortestPath(originID);
+		
+		for(Entry<Integer, PhysicalNode> entry : topology.getNodes().entrySet()){
+			entry.getValue().enable();
+		}
 		return path;
 	}
 	

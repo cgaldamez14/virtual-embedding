@@ -31,6 +31,67 @@ public class Path {
 		return start;
 	}
 	
+	public PathNode getNode(int i){
+		PathNode current = start;
+		
+		int index = 0;
+		while(index != i){
+			current = current.next();
+			index++;
+		}
+		
+		return current;
+	}
+	
+	public boolean equals(Path p){
+		PathNode current = start;
+		PathNode currentCompare = p.getStart();
+		
+		if(this.getNumberOfHops() != p.getNumberOfHops())
+			return false;
+		
+		while(current.hasNext() && currentCompare.hasNext()){
+			if(current.getNodeID() != currentCompare.getNodeID())
+				return false;
+			current = current.next();
+			currentCompare = currentCompare.next();
+		}
+		
+		return true;
+	}
+	
+	public int getNumberOfHops(){
+		PathNode current = start;
+		
+		int hop = 0;
+		while(current.hasNext()){
+			current = current.next();
+			hop++;
+		}
+		
+		return hop;
+	}
+	
+	public Path getNodes(int e){
+		Path subPath = new Path(start.getNodeID());
+		if(e == 0)
+			return subPath;
+		
+		PathNode subCurrent = subPath.getStart();
+		PathNode current = start.next();
+		
+		int index = 1;
+		while(index != e + 1){
+			subCurrent.setNext(new PathNode(current.getNodeID()));
+			subCurrent = subCurrent.next();
+			current = current.next();
+			index++;
+		}
+		
+		return subPath;
+		
+	}
+	
 	public void append(Path path){
 		PathNode current = start;
 		
@@ -56,7 +117,7 @@ public class Path {
 		}while (current != null);
 		
 		sb.append("\nPath Distance: " + pathDistance);
-		sb.append("\nThroughput: " + throughput + "\n");
+		//sb.append("\nThroughput: " + throughput + "\n");
 		
 		return sb.toString();
 	}

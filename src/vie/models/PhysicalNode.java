@@ -2,6 +2,7 @@ package vie.models;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,12 +18,28 @@ public class PhysicalNode {
 	private List<Integer> networkFunctions;
 	private Map<Integer, Integer> adjacentNodes;
 	
+	private Map<Integer, Integer> removedAdjacentNodes;
+	
 	
 	public PhysicalNode(int computationalAvailability) {
 		this.computationalAvailability = computationalAvailability;
 		this.networkFunctions = new ArrayList<>();
 		this.adjacentNodes = new HashMap<>();
+		this.removedAdjacentNodes = new HashMap<>();
 		this.id = nodeCount++;
+	}
+	
+	public void removeAdjacentNode(int id){
+		removedAdjacentNodes.put(id, adjacentNodes.get(id));
+		adjacentNodes.remove(id);
+	}
+	
+	public void saveRemovedAdjacentNode(int id){
+		removedAdjacentNodes.put(id, adjacentNodes.get(id));
+	}
+	
+	public void resetAdjacentNodes(){
+		adjacentNodes.putAll(removedAdjacentNodes);
 	}
 
 	
