@@ -12,12 +12,14 @@ import vie.embedding.Mapper;
 import vie.models.Link;
 import vie.models.Node;
 import vie.models.Pair;
+import vie.models.PathNode;
 import vie.models.PhysicalLink;
 import vie.models.PhysicalNode;
 import vie.models.Topology;
 import vie.models.VirtualLink;
 import vie.models.VirtualNode;
 import vie.models.VirtualRequest;
+import vie.utilities.DijkstraShortestPath;
 import vie.utilities.NetworkTopology;
 import vie.utilities.TopologyUtil;
 
@@ -102,6 +104,71 @@ public class Simulator {
 		//System.out.print("\r" + success + " / " + requests.size() + " were successfully mapped.");
 		//System.out.print("TOTAL BANDWIDTH CONSUMPTION: " + topology.getTotalBandwidthConsumption());
 		//System.out.flush();
+	}
+	
+	public Pair<Integer,Integer> getNumberOfTransponders(int transponderCapacity, int maxBandwidth, String distribution){
+		boolean done[] = new boolean[topology.getType().getNumberOfPhysicalNodes()];
+		
+		
+		//System.out.println("Transponder Capacity: " + transponderCapacity);
+		for(VirtualRequest vr: requests){
+			List<VirtualNode> virtualNodes = vr.getVirtualNodes();
+			int start = virtualNodes.get(0).getMapID();
+			int finish = virtualNodes.get(virtualNodes.size() - 1).getMapID();
+			
+			int bandwidthConsumption = -1;
+			while(bandwidthConsumption <= 0){
+			bandwidthConsumption = (distribution.equals("uniform"))?Link.generateRandomBandwidthUniform(maxBandwidth):
+				(distribution.equals("gaussian"))?Link.generateRandomBandwidthGaussian(maxBandwidth):Link.generateRandomBandwidth(maxBandwidth);
+			}
+			
+			PathNode current = new DijkstraShortestPath(topology, start, finish).getShortestPath().getStart();
+			while(current != null){
+				if(current.getNodeID() == start){
+					topology.getNodes().get(current.getNodeID()).incrementTBC(bandwidthConsumption);
+					//System.out.println(topology.getNodes().get(current.getNodeID()).getTransmissionBandwidth());
+				}
+				else if(current.getNodeID() == finish){
+					topology.getNodes().get(current.getNodeID()).incrementRBC(bandwidthConsumption);
+				}
+				else{
+					topology.getNodes().get(current.getNodeID()).incrementTBC(bandwidthConsumption);
+					topology.getNodes().get(current.getNodeID()).incrementRBC(bandwidthConsumption);
+				}
+
+				current = current.next();
+			}
+			
+		}
+		
+		int nodeID = 0;
+		int totalTranspondersODU = 0;
+		int totalTranspondersOTN = 0; 
+
+		for(int i = 0; i < topology.getType().getNumberOfPhysicalNodes(); i++){
+			int transmittersNeeded = ((topology.getNodes().get(i).getTransmissionBandwidth() / transponderCapacity) + ((topology.getNodes().get(i).getTransmissionBandwidth() % transponderCapacity != 0)? 1:0));
+			int receiversNeeded = ((topology.getNodes().get(i).getReceivingBandwidth() / transponderCapacity) + ((topology.getNodes().get(i).getReceivingBandwidth() % transponderCapacity != 0)? 1:0));
+			totalTranspondersODU += (transmittersNeeded + receiversNeeded);
+			//System.out.println(nodeID++ + "\t" + usedBandwidth + "\t" + transpondersNeeded);
+		}
+		
+		for(VirtualRequest vr: requests){
+			List<VirtualNode> virtualNodes = vr.getVirtualNodes();
+			int start = virtualNodes.get(0).getMapID();
+			int finish = virtualNodes.get(virtualNodes.size() - 1).getMapID();
+			if(!done[start]){
+				int transmittersNeeded = ((topology.getNodes().get(start).getTransmissionBandwidth() / transponderCapacity) + ((topology.getNodes().get(start).getTransmissionBandwidth() % transponderCapacity != 0)? 1:0));
+				done[start] = true;
+				totalTranspondersOTN += transmittersNeeded;
+			}
+			if(!done[finish]){
+				int receiversNeeded = ((topology.getNodes().get(finish).getReceivingBandwidth() / transponderCapacity) + ((topology.getNodes().get(finish).getReceivingBandwidth() % transponderCapacity != 0)? 1:0));
+				done[finish] = true;
+				totalTranspondersOTN += receiversNeeded;
+			}
+		}
+		
+		return new Pair<>(totalTranspondersODU,totalTranspondersOTN);
 	}
 	
 	public void generateRequests(){

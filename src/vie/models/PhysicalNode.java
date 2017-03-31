@@ -15,6 +15,9 @@ public class PhysicalNode {
 	
 	private boolean disabled = false;
 	
+	private int transmitterBandwidth = 0;
+	private int receiverBandwidth = 0;
+	
 	private List<Integer> networkFunctions;
 	private Map<Integer, Integer> adjacentNodes;
 	
@@ -92,5 +95,23 @@ public class PhysicalNode {
 	
 	public String toString(){
 		return "PHYSICAL NODE: " + id;
+	}
+
+	public void incrementTBC(int bandwidthConsumption) {
+		transmitterBandwidth += bandwidthConsumption;
+		
+	}
+	
+	public void incrementRBC(int bandwidthConsumption) {
+		receiverBandwidth += bandwidthConsumption;
+		
+	}
+
+	public int getTransmissionBandwidth() {
+		return transmitterBandwidth;
+	}
+	
+	public int getReceivingBandwidth() {
+		return receiverBandwidth;
 	}
 }
