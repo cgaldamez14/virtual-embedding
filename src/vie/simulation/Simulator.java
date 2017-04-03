@@ -2,8 +2,10 @@ package vie.simulation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import vie.embedding.Algorithm1;
 import vie.embedding.Algorithm2;
@@ -12,6 +14,7 @@ import vie.embedding.Mapper;
 import vie.models.Link;
 import vie.models.Node;
 import vie.models.Pair;
+import vie.models.Path;
 import vie.models.PathNode;
 import vie.models.PhysicalLink;
 import vie.models.PhysicalNode;
@@ -106,7 +109,7 @@ public class Simulator {
 		//System.out.flush();
 	}
 	
-	public Pair<Integer,Integer> getNumberOfTransponders(int transponderCapacity, int maxBandwidth, String distribution){
+	public Pair<Integer,Integer> getNumberOfTransponders(int transponderCapacity, int maxBandwidth, String distribution, boolean backupPath){
 		boolean done[] = new boolean[topology.getType().getNumberOfPhysicalNodes()];
 		
 		
@@ -121,8 +124,8 @@ public class Simulator {
 			bandwidthConsumption = (distribution.equals("uniform"))?Link.generateRandomBandwidthUniform(maxBandwidth):
 				(distribution.equals("gaussian"))?Link.generateRandomBandwidthGaussian(maxBandwidth):Link.generateRandomBandwidth(maxBandwidth);
 			}
-			
-			PathNode current = new DijkstraShortestPath(topology, start, finish).getShortestPath().getStart();
+			Path path = new DijkstraShortestPath(topology, start, finish).getShortestPath();
+			PathNode current = path.getStart();
 			while(current != null){
 				if(current.getNodeID() == start){
 					topology.getNodes().get(current.getNodeID()).incrementTBC(bandwidthConsumption);
@@ -137,6 +140,61 @@ public class Simulator {
 				}
 
 				current = current.next();
+			}
+			
+			
+			if(backupPath){
+				current = path.getStart().next();
+				while(current.hasNext()){
+					if(!current.hasNext()) break;
+					for (Iterator<Map.Entry<Integer,Integer>> it = topology.getNodes().get(current.getNodeID()).getAdjacentNodes().entrySet().iterator();it.hasNext();) {
+						Entry<Integer, Integer> curr = it.next();
+						//topology.getNodes().get(current.getNodeID()).saveRemovedAdjacentNode(curr.getKey());
+						
+						//it.remove();
+						topology.getNodes().get(curr.getKey()).removeAdjacentNode(current.getNodeID());
+					}
+					topology.removeNode(current.getNodeID());
+
+					current = current.next();
+				}
+				
+				Path backup = new DijkstraShortestPath(topology, start, finish).getShortestPath();
+				
+				current = backup.getStart();
+				while(current != null){
+					if(current.getNodeID() == start){
+						topology.getNodes().get(current.getNodeID()).incrementTBC(bandwidthConsumption);
+						//System.out.println(topology.getNodes().get(current.getNodeID()).getTransmissionBandwidth());
+					}
+					else if(current.getNodeID() == finish){
+						topology.getNodes().get(current.getNodeID()).incrementRBC(bandwidthConsumption);
+					}
+					else{
+						topology.getNodes().get(current.getNodeID()).incrementTBC(bandwidthConsumption);
+						topology.getNodes().get(current.getNodeID()).incrementRBC(bandwidthConsumption);
+					}
+
+					current = current.next();
+				}
+				
+				topology.resetNodes();
+
+				
+				current = path.getStart().next();
+				while(current.hasNext()){
+					if(!current.hasNext()) break;
+					for (Iterator<Map.Entry<Integer,Integer>> it = topology.getNodes().get(current.getNodeID()).getAdjacentNodes().entrySet().iterator();it.hasNext();) {
+						Entry<Integer, Integer> curr = it.next();
+						//topology.getNodes().get(current.getNodeID()).saveRemovedAdjacentNode(curr.getKey());
+						
+						//it.remove();
+						topology.getNodes().get(curr.getKey()).resetAdjacentNodes();
+					}
+					current = current.next();
+				}
+				
+				
 			}
 			
 		}

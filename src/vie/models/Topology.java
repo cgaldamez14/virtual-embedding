@@ -16,7 +16,10 @@ public class Topology {
 	public static int COMPUTATIONAL_AVAILABILITY = 3000;
 	public static int BANDWIDTH_AVAILABILITY = 8000;
 	
-	private Map<Integer, PhysicalNode> nodes;	
+	private Map<Integer, PhysicalNode> nodes;
+	private Map<Integer, PhysicalNode> removedNodes;
+
+	
 	private List<PhysicalLink> links;
 	
 	private List<List<PhysicalNode>> subsets;
@@ -34,6 +37,18 @@ public class Topology {
 		for(int i = 0; i < type.getNumberOfPhysicalNodes();i++){
 			pathDictionary.put(i,new HashMap<>());
 		}
+		
+		this.removedNodes = new HashMap<>();
+	}
+	
+	public void removeNode(int id){
+		removedNodes.put(id, nodes.get(id));
+		nodes.remove(id);
+	}
+	
+	public void resetNodes(){
+		nodes.putAll(removedNodes);
+		removedNodes.clear();
 	}
 	
 	

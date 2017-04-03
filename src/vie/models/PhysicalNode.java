@@ -43,6 +43,7 @@ public class PhysicalNode {
 	
 	public void resetAdjacentNodes(){
 		adjacentNodes.putAll(removedAdjacentNodes);
+		//removedAdjacentNodes.clear();
 	}
 
 	
