@@ -120,7 +120,7 @@ public class Simulator {
 			int finish = virtualNodes.get(virtualNodes.size() - 1).getMapID();
 			
 			int bandwidthConsumption = -1;
-			while(bandwidthConsumption <= 0){
+			while(bandwidthConsumption <= 0 || bandwidthConsumption > maxBandwidth){
 			bandwidthConsumption = (distribution.equals("uniform"))?Link.generateRandomBandwidthUniform(maxBandwidth):
 				(distribution.equals("gaussian"))?Link.generateRandomBandwidthGaussian(maxBandwidth):Link.generateRandomBandwidth(maxBandwidth);
 			}
