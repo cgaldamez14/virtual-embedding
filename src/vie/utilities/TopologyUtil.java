@@ -28,7 +28,8 @@ public class TopologyUtil {
 		topology.setNodes(createPhysicalNodes(numberOfNodes, Topology.COMPUTATIONAL_AVAILABILITY));
 		topology.setLinks(createPhysicalLinks(topology));
 		
-		
+		topology.setSubsets();
+
 		return topology;
 		
 	}

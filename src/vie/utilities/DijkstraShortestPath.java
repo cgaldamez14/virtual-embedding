@@ -1,6 +1,7 @@
 package vie.utilities;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,6 +47,39 @@ public class DijkstraShortestPath {
 			entry.getValue().enable();
 		}
 		return path;
+	}
+	
+	public Path getDisjointShortestPath(){
+		//if(path.getNumberOfHops() == 0) getShortestPath();
+		
+		PathNode current = path.getStart().next();
+		while(current.hasNext()){
+			if(!current.hasNext()) break;
+			
+			for (Map.Entry<Integer,Integer> entry : topology.getNodes().get(current.getNodeID()).getAdjacentNodes().entrySet()) 
+				topology.getNodes().get(entry.getKey()).removeAdjacentNode(current.getNodeID());
+			
+			topology.removeNode(current.getNodeID());
+
+			current = current.next();
+		}
+		DijkstraShortestPath dsp = new DijkstraShortestPath(topology, originID, destinationID);
+		Path disjointPath = dsp.getShortestPath();
+		
+		topology.resetNodes();
+		
+		current = path.getStart().next();
+		while(current.hasNext()){
+			if(!current.hasNext()) break;
+			for (Iterator<Map.Entry<Integer,Integer>> it = topology.getNodes().get(current.getNodeID()).getAdjacentNodes().entrySet().iterator();it.hasNext();) {
+				Entry<Integer, Integer> curr = it.next();
+
+				topology.getNodes().get(curr.getKey()).resetAdjacentNodes();
+			}
+			current = current.next();
+		}
+		
+		return disjointPath;
 	}
 	
 	private void init(){

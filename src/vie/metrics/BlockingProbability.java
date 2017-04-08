@@ -54,14 +54,13 @@ public class BlockingProbability{
 		Topology.BANDWIDTH_AVAILABILITY = 8000;
 		Topology.COMPUTATIONAL_AVAILABILITY = 3000;
 		
-		Simulator.MAX_NODES = num;
-
 		double sum1 = 0;
 		double sum2 = 0;
 		double sum3 = 0;
 		for(int i = 0; i < iterations; i++){
 			Simulator simulator = new Simulator(NetworkTopology.NSFNET);
 			simulator.setNumberOfRequest(300);
+			simulator.setMaxNodes(num);
 			simulator.generateRequests();
 			
 			simulator.start(1);
@@ -71,6 +70,8 @@ public class BlockingProbability{
 			
 			simulator = new Simulator(NetworkTopology.NSFNET);
 			simulator.setNumberOfRequest(300);
+			simulator.setMaxNodes(num);
+
 			simulator.generateRequests();
 			simulator.start(2);
 			sum2 += simulator.getTopology().requestsMapped / 300.0;
@@ -79,6 +80,8 @@ public class BlockingProbability{
 			
 			simulator = new Simulator(NetworkTopology.NSFNET);
 			simulator.setNumberOfRequest(300);
+			simulator.setMaxNodes(num);
+
 			simulator.generateRequests();
 			simulator.start(3);
 			sum3 += simulator.getTopology().requestsMapped / 300.0;

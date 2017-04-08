@@ -38,11 +38,20 @@ public class TransponderMetric{
 		pw.println("Max_Bandwidth,ODU,OTN");
 
 		for(int i = 10; i <= 200; i+=10){
-			Simulator simulator = new Simulator(NetworkTopology.NSFNET);
-			simulator.setNumberOfRequest(500);
-			simulator.generateRequests();
+			//Simulator simulator = new Simulator(NetworkTopology.NSFNET);
+			//simulator.setNumberOfRequest(500);
+			//simulator.generateRequests();
 		
-			Pair<Integer,Integer> results = simulator.getNumberOfTransponders(100,i, distributionType.name().toLowerCase(), (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true);			
+			int sum1 = 0;
+			int sum2 = 0;
+			for(int j = 0; j < 20; j++){
+				Simulator simulator = new Simulator(NetworkTopology.NSFNET);
+				simulator.setNumberOfRequest(500);
+				simulator.generateRequests();
+				sum1 += simulator.getTranspondersODU(100,i, distributionType.name().toLowerCase(), (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true);
+				sum2 += simulator.getTransponderOTN(100,i, distributionType.name().toLowerCase(), (method.equals(EMBEDDING_METHOD.WO_BACKUP))?false:true);
+			}
+			Pair<Integer,Integer> results = new Pair<Integer, Integer>(sum1/20,sum2/20);			
 			pw.println(i + "," + results.first() + "," + results.second());
 		}
 		
