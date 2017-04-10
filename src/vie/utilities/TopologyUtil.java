@@ -21,7 +21,6 @@ public class TopologyUtil {
 	public static Topology readAdjacencyMatrix(NetworkTopology type) throws IOException{
 		
 		Topology topology = new Topology(type);
-		//System.out.println(topology);
 		
 		int numberOfNodes = type.getNumberOfPhysicalNodes();
 		
@@ -50,9 +49,8 @@ public class TopologyUtil {
 			nodes.put(node.getID(), node);
 		}
 		
-		node.nodeCount = 0;
+		PhysicalNode.nodeCount = 0;
 		
-		//System.out.println(nodes);
 		return nodes;
 	}
 	
