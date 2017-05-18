@@ -18,16 +18,17 @@ public class TopologyUtil {
 	private final static int NEW_LINE = 10;
 	private final static int TAB = 9;
 	
-	public static Topology readAdjacencyMatrix(NetworkTopology type) throws IOException{
+	public static Topology readAdjacencyMatrix(NetworkTopology type, int computationalAvailability, int bandwidthAvailability) throws IOException{
 		
 		Topology topology = new Topology(type);
-		
-		int numberOfNodes = type.getNumberOfPhysicalNodes();
-		
-		topology.setNodes(createPhysicalNodes(numberOfNodes, Topology.COMPUTATIONAL_AVAILABILITY));
+		topology.setComputationalAvailability(computationalAvailability);
+		topology.setBandwidthAvailability(bandwidthAvailability);
+				
+		topology.setNodes(createPhysicalNodes(type.getNumberOfPhysicalNodes(), 
+						  computationalAvailability));
 		topology.setLinks(createPhysicalLinks(topology));
 		
-		topology.setSubsets();
+		topology.setFunctionSubsets();
 
 		return topology;
 		
@@ -39,7 +40,7 @@ public class TopologyUtil {
 		PhysicalNode node = null;
 		
 		for ( int i = 0; i < numberOfNodes; i++){
-			node = new PhysicalNode(Topology.COMPUTATIONAL_AVAILABILITY);
+			node = new PhysicalNode(compute);
 			int fstNetworkFunction = node.addNetworkFunction(1 + (int)(Math.random() * 3));
 			int sndNetworkFunction;
 			do{
@@ -73,7 +74,7 @@ public class TopologyUtil {
 					if(linkDistanceInt > 0){
 						nodes.get(currentNode).getAdjacentNodes().put(adjacentNode, linkDistanceInt);
 						if(adjacentNode > currentNode){
-							links.add(new PhysicalLink (linkDistanceInt, Topology.BANDWIDTH_AVAILABILITY, new Pair<>(currentNode, adjacentNode)));
+							links.add(new PhysicalLink (linkDistanceInt, topology.getBandwidthAvailability(), new Pair<>(currentNode, adjacentNode)));
 						}
 					}
 					adjacentNode++;

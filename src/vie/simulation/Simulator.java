@@ -2,27 +2,18 @@ package vie.simulation;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import vie.embedding.Algorithm1;
 import vie.embedding.Algorithm2;
 import vie.embedding.Algorithm3;
 import vie.embedding.Mapper;
-import vie.models.Link;
-import vie.models.Node;
-import vie.models.Pair;
-import vie.models.Path;
-import vie.models.PathNode;
 import vie.models.PhysicalLink;
 import vie.models.PhysicalNode;
 import vie.models.Topology;
 import vie.models.VirtualLink;
-import vie.models.VirtualNode;
 import vie.models.VirtualRequest;
-import vie.utilities.DijkstraShortestPath;
 import vie.utilities.NetworkTopology;
 import vie.utilities.TopologyUtil;
 
@@ -41,8 +32,8 @@ public class Simulator {
 	 * @param type - Type of topology being used
 	 * @throws IOException
 	 */
-	public Simulator(NetworkTopology type) throws IOException{
-		this.topology = TopologyUtil.readAdjacencyMatrix(type);
+	public Simulator(NetworkTopology type, int computationalAvailability, int bandwidthAvailability) throws IOException{
+		this.topology = TopologyUtil.readAdjacencyMatrix(type, computationalAvailability, bandwidthAvailability);
 	}
 	
 	// --------------------------------------- ACCESSORS -------------------------------------- //
@@ -121,77 +112,9 @@ public class Simulator {
 						break;
 			}
 
-			if (mapper.attemptRequestMapping()) topology.requestsMapped++;
+			if (mapper.attemptRequestMapping()) topology.increaseRequestsMapped();
 		}
 	}
-	
-	private void updateTransponderBandwidth(Path path, int traffic){
-		PathNode current = path.getStart();
-		while(current != null){
-			if(current.getNodeID() == path.getStart().getNodeID()){
-				topology.getNodes().get(current.getNodeID()).incrementTBC(traffic);
-			}
-			else if(!current.hasNext()){
-				topology.getNodes().get(current.getNodeID()).incrementRBC(traffic);
-			}
-			else{
-				topology.getNodes().get(current.getNodeID()).incrementTBC(traffic);
-				topology.getNodes().get(current.getNodeID()).incrementRBC(traffic);
-			}
-
-			current = current.next();
-		}
-	}
-	
-	public int getTranspondersODU(int transponderCapacity, int maxBandwidth, String distribution, boolean backupPath){
-		
-		for(VirtualRequest vr: requests){
-			List<VirtualNode> virtualNodes = vr.getVirtualNodes();
-			int start = virtualNodes.get(0).getMapID();
-			int finish = virtualNodes.get(virtualNodes.size() - 1).getMapID();
-			
-			int traffic = -1;
-			while(traffic <= 0 || traffic > maxBandwidth){
-			traffic = (distribution.equals("uniform"))?Link.generateRandomBandwidthUniform(maxBandwidth):
-								  (distribution.equals("gaussian"))?Link.generateRandomBandwidthGaussian(maxBandwidth):
-												  					Link.generateRandomBandwidth(maxBandwidth);
-			}
-			
-			DijkstraShortestPath dsp = new DijkstraShortestPath(topology, start, finish);
-			updateTransponderBandwidth(dsp.getShortestPath(), traffic);
-			
-			if(backupPath) updateTransponderBandwidth(dsp.getDisjointShortestPath(), traffic);			
-		}
-		
-		int totalTranspondersODU = 0;
-
-		for(int i = 0; i < topology.getType().getNumberOfPhysicalNodes(); i++){
-			int transmittersNeeded = ((topology.getNodes().get(i).getTransmissionBandwidth() / transponderCapacity) + ((topology.getNodes().get(i).getTransmissionBandwidth() % transponderCapacity != 0)? 1:0));
-			int receiversNeeded = ((topology.getNodes().get(i).getReceivingBandwidth() / transponderCapacity) + ((topology.getNodes().get(i).getReceivingBandwidth() % transponderCapacity != 0)? 1:0));
-			totalTranspondersODU += (transmittersNeeded + receiversNeeded);
-		}
-		
-		return totalTranspondersODU;
-	}
-	
-	public int getTransponderOTN(int transponderCapacity,int maxBandwidth, String distribution, boolean backupPath){
-		
-		int totalTranspondersOTN = 0; 
-		
-		for(int i = 0; i < numberOfRequests; i++){
-			int traffic = -1;
-			while(traffic <= 0 || traffic > maxBandwidth){
-			traffic = (distribution.equals("uniform"))?Link.generateRandomBandwidthUniform(maxBandwidth):
-								  (distribution.equals("gaussian"))?Link.generateRandomBandwidthGaussian(maxBandwidth):
-												  					Link.generateRandomBandwidth(maxBandwidth);
-			}
-			
-			totalTranspondersOTN += ((traffic / transponderCapacity) + ((traffic % transponderCapacity != 0)? 1:0)) * 2;
-		}
-		
-		return totalTranspondersOTN;
-	}
-	
 	
 	/**
 	 * Removes all mappings for all virtual requests and returns all resources to physical links 
@@ -199,7 +122,7 @@ public class Simulator {
 	 */
 	public void resetAllResources(){
 		
-		topology.requestsMapped = 0;
+		topology.setRequestsMapped(0);
 		
 		for(VirtualRequest vr: requests){
 			if(vr.isBlocked())
@@ -211,10 +134,10 @@ public class Simulator {
 		}
 		
 		for(Map.Entry<Integer, PhysicalNode> entry: topology.getNodes().entrySet())
-			entry.getValue().setComputationAvailability(Topology.COMPUTATIONAL_AVAILABILITY);
+			entry.getValue().setComputationAvailability(topology.getComputationalAvailability());
 		
 		for(PhysicalLink pl: topology.getLinks())
-			pl.setBandwidthAvailability(Topology.BANDWIDTH_AVAILABILITY);
+			pl.setBandwidthAvailability(topology.getBandwidthAvailability());
 	}
 	
 }

@@ -15,13 +15,18 @@ import vie.utilities.DijkstraShortestPath;
 
 public class Algorithm3 extends NodeMapper{
 	
+	/**
+	 * Constructor calls the constructor of the super class.
+	 * @param topology - topology being used for mapping.
+	 * @param virtualRequest - virtual request that will be mapped.
+	 */
 	public Algorithm3(Topology topology , VirtualRequest virtualRequest){
 		super(topology,virtualRequest);
 	}
 	
 	@Override
 	protected void attemptNodeMapping(){
-		List<List<PhysicalNode>> subsets = topology.getSubsets();
+		List<List<PhysicalNode>> subsets = topology.getFunctionSubsets();
 		
 		topology.getNodes().get(virtualRequest.getVirtualNodes().get(0).getMapID()).disable();															// disable physical node mapped to origin 
 		topology.getNodes().get(virtualRequest.getVirtualNodes().get(virtualRequest.getVirtualNodes().size() - 1).getMapID()).disable();				// disable physical node mapped to destination
@@ -71,13 +76,8 @@ public class Algorithm3 extends NodeMapper{
 
 			boolean validPath = true;
 			Path path = topology.getPathDictionary()
-					.get(virtualRequest.getVirtualNodes()
-					.get(link.getOriginID())
-					.getMapID())
-					.get(virtualRequest
-					.getVirtualNodes()
-					.get(link.getDestinationID())
-					.getMapID());
+					.get(virtualRequest.getVirtualNodes().get(link.getOriginID()).getMapID())
+					.get(virtualRequest.getVirtualNodes().get(link.getDestinationID()).getMapID());
 			
 			PathNode current = path.getStart();
 			PathNode next = current.next();
@@ -126,7 +126,7 @@ public class Algorithm3 extends NodeMapper{
 		}
 		
 		
-		List<List<PhysicalNode>> subsets = topology.getSubsets();
+		List<List<PhysicalNode>> subsets = topology.getFunctionSubsets();
 		
 		List<PhysicalNode> origins = new ArrayList<>();
 		origins.add(topology.getNodes().get(virtualNodes.get(0).getMapID()));
@@ -157,7 +157,7 @@ public class Algorithm3 extends NodeMapper{
 		}
 		else{
 		int functionOfInterest = virtualRequest.getVirtualNodes().get(next+1).getRequestedFunctionID();
-		generateList(destinations, topology.getSubsets().get(functionOfInterest-1),next + 1);
+		generateList(destinations, topology.getFunctionSubsets().get(functionOfInterest-1),next + 1);
 		}
 	}
 
